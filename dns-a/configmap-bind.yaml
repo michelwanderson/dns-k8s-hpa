@@ -1,0 +1,20 @@
+# dns-a/configmap-bind.yaml #named.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bind-config
+  namespace: dns-a
+data:
+  named.conf: |
+    options {
+        directory "/var/cache/bind";
+        listen-on port 53 { any; };
+        allow-query { any; };
+        recursion no;
+        dnssec-validation no;
+    };
+
+    zone "meudominio.com" {
+        type master;
+        file "/etc/bind/zones/db.meudominio.com";
+    };

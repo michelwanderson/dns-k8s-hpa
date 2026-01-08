@@ -1,0 +1,59 @@
+# dns-b/statefulset-bind.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: bind
+  namespace: dns-b
+spec:
+  serviceName: bind
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bind
+  template:
+    metadata:
+      labels:
+        app: bind
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: bind
+              topologyKey: kubernetes.io/hostname
+              
+      containers:
+        - name: bind
+          image: internetsystemsconsortium/bind9:9.18
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          ports:
+            - containerPort: 53
+              protocol: UDP
+            - containerPort: 53
+              protocol: TCP
+          volumeMounts:
+            - name: bind-config
+              mountPath: /etc/bind/named.conf
+              subPath: named.conf
+            - name: bind-zone
+              mountPath: /etc/bind/zones/db.meudominio.com
+              subPath: db.meudominio.com
+          readinessProbe:
+            tcpSocket:
+              port: 53
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: bind-config
+          configMap:
+            name: bind-config
+        - name: bind-zone
+          configMap:
+            name: bind-zone

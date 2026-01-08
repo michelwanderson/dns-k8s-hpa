@@ -1,0 +1,23 @@
+# dns-b/configmap-zone.yaml #zones
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bind-zone
+  namespace: dns-b
+data:
+  db.meudominio.com: |
+    $TTL 60
+    @   IN  SOA ns2.meudominio.com. admin.meudominio.com. (
+            2026010701 ; Serial
+            3600       ; Refresh
+            1800       ; Retry
+            604800     ; Expire
+            60 )       ; Minimum
+
+
+        IN  NS  ns2.meudominio.com.
+
+    ns1 IN  A   127.0.0.1
+    ns2 IN  A   127.0.0.1
+
+    www IN  A   10.10.10.20

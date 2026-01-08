@@ -1,0 +1,10 @@
+# namespaces.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dns-a
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dns-b

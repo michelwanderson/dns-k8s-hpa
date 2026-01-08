@@ -1,0 +1,24 @@
+# dns-a/service-dns.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: dns
+  namespace: dns-a
+spec:
+  type: NodePort
+  selector:
+    app: bind
+  ports:
+    - name: dns-udp
+      port: 53
+      targetPort: 53
+      protocol: UDP
+      nodePort: 30053
+    - name: dns-tcp
+      port: 53
+      targetPort: 53
+      protocol: TCP
+      nodePort: 30053
+
+
+
