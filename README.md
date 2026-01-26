@@ -64,3 +64,13 @@ kubectl get pods -n dns-a
 ```
 
 O HPA está configurado para escalar horizontalmente quando a utilização média de CPU ultrapassar 20%.
+
+
+## Atualização do Projeto
+Foi realizada uma atualização no projeto, com a adição de um novo namespace chamado `observability`, que trará o Prometheus como ferramenta de monitoramento.
+Ainda, foi implementado um novo StatefulSet para o Prometheus, o `bind-exporter`, que será responsável por expor as métricas do cluster.
+
+**Para acesso deve ser criar uma entrada no loadbalancer do k3d OU utilizar o portforward do kubectl**
+```bash
+kubectl port-forward -n observability deploy/prometheus 9090:9090
+```
