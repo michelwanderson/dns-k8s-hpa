@@ -50,15 +50,13 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
 
-        - name: bind
-          image: internetsystemsconsortium/bind9:9.18
+        - name: bind-exporter
+          image: prometheuscommunity/bind-exporter
+          args:
+            - "--bind.stats-url=http://127.0.0.1:8053/json"
           ports:
-            - containerPort: 53
-              protocol: UDP
-            - containerPort: 53
+            - containerPort: 9119
               protocol: TCP
-            - containerPort: 8053
-              protocol: TCP   # statistics-channels
 
       volumes:
         - name: bind-config
