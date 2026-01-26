@@ -14,6 +14,10 @@ data:
         dnssec-validation no;
     };
 
+    statistics-channels {
+      inet 127.0.0.1 port 8053 allow { 127.0.0.1; };
+    };
+
     zone "meudominio.com" {
         type master;
         file "/etc/bind/zones/db.meudominio.com";
