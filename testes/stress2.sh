@@ -1,5 +1,3 @@
 #!/bin/sh
 
-while true; do
-  dig @localhost www.meudominio.com
-done
+while true; do dig @localhost www.meudominio.com; done

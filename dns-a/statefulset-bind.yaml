@@ -50,10 +50,11 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
 
+        # Sidecar container for Prometheus Bind Exporter
         - name: bind-exporter
           image: prometheuscommunity/bind-exporter
           args:
-            - "--bind.stats-url=http://127.0.0.1:8053/json"
+            - "--bind.stats-url=http://127.0.0.1:8053"
           ports:
             - containerPort: 9119
               protocol: TCP
