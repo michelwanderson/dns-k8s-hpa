@@ -86,7 +86,3 @@ kubectl get pods -n dns-a
 ```
 
 O HPA está configurado para escalar horizontalmente quando a utilização média de CPU ultrapassar 20%.
-
-
-
-```
