@@ -1,6 +1,6 @@
-# DNS BIND no Kubernetes com HPA
+# DNS BIND no Kubernetes com HPA e Observabilidade
 
-Este projeto implementa um servidor DNS autoritativo utilizando BIND9 em um cluster Kubernetes. A arquitetura utiliza StatefulSets para gerenciamento dos Pods, ConfigMaps para configurações e zonas DNS, e Horizontal Pod Autoscaler (HPA) para escalabilidade automática baseada no uso de CPU.
+Este projeto implementa um servidor DNS autoritativo utilizando BIND9 em um cluster Kubernetes. A arquitetura utiliza StatefulSets para gerenciamento dos Pods, ConfigMaps para configurações e zonas DNS, e Horizontal Pod Autoscaler (HPA) para escalabilidade automática baseada no uso de CPU. O projeto também inclui uma camada de observabilidade com Prometheus e Grafana.
 
 ## Estrutura do Projeto
 
@@ -13,6 +13,7 @@ O projeto está organizado em diretórios correspondentes aos namespaces (`dns-a
   - `statefulset-bind.yaml`: Definição do workload (StatefulSet) com imagem `bind9:9.18`.
   - `service-dns.yaml`: Serviço NodePort expondo a porta 53 (UDP/TCP) na porta externa **30053**.
   - `hpa.yaml`: Configuração de autoscaling (Min: 2, Max: 8 réplicas) com target de 20% de CPU.
+- **observability/**: Contém os recursos para monitoramento (Prometheus e Grafana).
 
 ## Pré-requisitos
 
@@ -27,7 +28,13 @@ O projeto está organizado em diretórios correspondentes aos namespaces (`dns-a
    kubectl apply -f namespaces.yaml
    ```
 
-2. **Implantar o Ambiente (Exemplo: dns-a)**
+2. **Implantar a Observabilidade**
+   Aplique os manifestos da pasta `observability` (Prometheus e Grafana):
+   ```bash
+   kubectl apply -f observability/
+   ```
+
+3. **Implantar o Ambiente DNS (Exemplo: dns-a)**
    Aplique as configurações, zonas, serviço e o StatefulSet:
    ```bash
    kubectl apply -f dns-a/configmap-bind.yaml
@@ -36,7 +43,7 @@ O projeto está organizado em diretórios correspondentes aos namespaces (`dns-a
    kubectl apply -f dns-a/statefulset-bind.yaml
    ```
 
-3. **Aplicar o HPA**
+4. **Aplicar o HPA**
    ```bash
    kubectl apply -f dns-a/hpa.yaml
    ```
@@ -56,6 +63,21 @@ Deve retornar o IP `10.10.10.10` configurado na zona.
 
 ## Monitoramento e Autoscaling
 
+O monitoramento é realizado via Prometheus (coleta de métricas) e Grafana (visualização). O StatefulSet do BIND possui um container sidecar (`bind-exporter`) que expõe as métricas na porta 9119.
+
+### Acessando o Grafana
+O Grafana está exposto via NodePort na porta **30050**.
+- **URL**: `http://<NODE_IP>:30050`
+- **Login**: `admin` / `admin123`
+
+### Acessando o Prometheus
+Para acessar o Prometheus, utilize o port-forward:
+```bash
+kubectl port-forward -n observability deploy/prometheus 9090:9090
+```
+Acesse em: `http://localhost:9090`
+
+### Verificando o HPA
 Para verificar o status do HPA e o número de réplicas:
 
 ```bash
