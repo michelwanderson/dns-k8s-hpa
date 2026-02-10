@@ -6,19 +6,20 @@ Este projeto implementa um servidor DNS autoritativo utilizando BIND9 em um clus
 
 O projeto está organizado em diretórios correspondentes aos namespaces (`dns-a`, `dns-b`), contendo os manifestos necessários:
 
-- **namespaces.yaml**: Define os namespaces `dns-a` e `dns-b`.
+- **namespaces.yaml**: Define os namespaces `dns-a`, `dns-b` e `observability`.
 - **dns-a/**:
   - `configmap-bind.yaml`: Configuração principal do BIND (`named.conf`).
   - `configmap-zone.yaml`: Arquivo de zona para o domínio `meudominio.com`.
   - `statefulset-bind.yaml`: Definição do workload (StatefulSet) com imagem `bind9:9.18`.
   - `service-dns.yaml`: Serviço NodePort expondo a porta 53 (UDP/TCP) na porta externa **30053**.
   - `hpa.yaml`: Configuração de autoscaling (Min: 2, Max: 8 réplicas) com target de 20% de CPU.
-- **observability/**: Contém os recursos para monitoramento (Prometheus e Grafana).
+- **observability/**: Contém os manifestos do Prometheus e a configuração do Grafana (Helm).
 
 ## Pré-requisitos
 
 - Cluster Kubernetes em execução.
 - `kubectl` configurado.
+- `helm` instalado.
 - `metrics-server` instalado no cluster (essencial para o funcionamento do HPA).
 
 ## Instalação
@@ -28,13 +29,23 @@ O projeto está organizado em diretórios correspondentes aos namespaces (`dns-a
    kubectl apply -f namespaces.yaml
    ```
 
-2. **Implantar a Observabilidade**
-   Aplique os manifestos da pasta `observability` (Prometheus e Grafana):
+2. **Implantar o Prometheus**
+   Aplique os manifestos do Prometheus que estão na pasta `observability`.
    ```bash
-   kubectl apply -f observability/
+   # O comando abaixo assume que os arquivos .yaml do Prometheus estão em um subdiretório.
+   # Ajuste o caminho conforme a estrutura do seu projeto.
+   kubectl apply -f observability/prometheus/
    ```
 
-3. **Implantar o Ambiente DNS (Exemplo: dns-a)**
+3. **Implantar o Grafana**
+   Instale o Grafana via Helm no namespace `observability`:
+   ```bash
+   helm repo add grafana https://grafana.github.io/helm-charts
+   helm repo update
+   helm install grafana grafana/grafana -n observability -f observability/grafana-chart/values.yaml
+   ```
+
+4. **Implantar o Ambiente DNS (Exemplo: dns-a)**
    Aplique as configurações, zonas, serviço e o StatefulSet:
    ```bash
    kubectl apply -f dns-a/configmap-bind.yaml
@@ -43,7 +54,7 @@ O projeto está organizado em diretórios correspondentes aos namespaces (`dns-a
    kubectl apply -f dns-a/statefulset-bind.yaml
    ```
 
-4. **Aplicar o HPA**
+5. **Aplicar o HPA**
    ```bash
    kubectl apply -f dns-a/hpa.yaml
    ```
